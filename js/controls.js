@@ -106,13 +106,24 @@ export class Controls {
         }
         
         // Room boundaries
+        const boundaries = this.getRoomBoundaries();
         this.camera.position.x = Math.max(
-            -roomConfig.width/2 + roomConfig.boundaryPadding, 
-            Math.min(roomConfig.width/2 - roomConfig.boundaryPadding, this.camera.position.x)
+            boundaries.minX,
+            Math.min(boundaries.maxX, this.camera.position.x)
         );
         this.camera.position.z = Math.max(
-            -roomConfig.depth/2 + roomConfig.boundaryPadding, 
-            Math.min(roomConfig.depth/2 - roomConfig.boundaryPadding, this.camera.position.z)
+            boundaries.minZ,
+            Math.min(boundaries.maxZ, this.camera.position.z)
         );
+    }
+
+    getRoomBoundaries() {
+        // This will be set by the App class
+        return {
+            minX: -roomConfig.width/2 + roomConfig.boundaryPadding,
+            maxX: roomConfig.width/2 - roomConfig.boundaryPadding,
+            minZ: -roomConfig.depth/2 + roomConfig.boundaryPadding,
+            maxZ: roomConfig.depth/2 - roomConfig.boundaryPadding
+        };
     }
 }
