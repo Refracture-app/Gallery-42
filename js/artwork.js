@@ -23,7 +23,7 @@ export class Artwork {
         this.textureLoader.load(imageUrl, (texture) => {
             const aspectRatio = texture.image.width / texture.image.height;
             const height = finalConfig.width / aspectRatio;
-            
+
             const geometry = new THREE.PlaneGeometry(finalConfig.width, height);
             const material = new THREE.MeshBasicMaterial({ 
                 map: texture,
@@ -31,9 +31,9 @@ export class Artwork {
                 transparent: finalConfig.preserveTransparency,
                 color: finalConfig.preserveTransparency ? 0xffffff : finalConfig.backgroundColor
             });
-            
+
             const artwork = new THREE.Mesh(geometry, material);
-            
+
             artwork.position.set(
                 finalConfig.position.x, 
                 finalConfig.position.y, 
@@ -44,7 +44,7 @@ export class Artwork {
                 finalConfig.rotation.y, 
                 finalConfig.rotation.z
             );
-            
+
             this.artworks.set(imageUrl, artwork);
             this.scene.add(artwork);
         });
