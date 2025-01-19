@@ -1,15 +1,15 @@
 import { roomConfig } from './config.js';
 
 export class Room {
-    constructor(scene) {
+    constructor(scene, position = { x: 0, y: 0, z: 0 }) {
         this.scene = scene;
+        this.position = position;
         this.createWalls();
         this.createFloor();
         this.createCeiling();
     }
 
     createCeiling() {
-        // First approach - try adjusting render order
         const geometry = new THREE.PlaneGeometry(
             roomConfig.width, 
             roomConfig.depth, 
@@ -20,16 +20,20 @@ export class Room {
             color: roomConfig.wallColor,
             transparent: true,
             opacity: 0.2,
-            depthWrite: false,  // Add this
-            renderOrder: 1      // Add this
+            depthWrite: false,
+            renderOrder: 1
         });
         const ceiling = new THREE.LineSegments(
             new THREE.WireframeGeometry(geometry),
             material
         );
         ceiling.rotation.x = Math.PI / 2;
-        ceiling.position.y = roomConfig.height/2;
-        ceiling.renderOrder = 1;  // Ensure it renders after other elements
+        ceiling.position.set(
+            this.position.x,
+            this.position.y + roomConfig.height/2,
+            this.position.z
+        );
+        ceiling.renderOrder = 1;
         this.scene.add(ceiling);
     }
 
@@ -41,8 +45,8 @@ export class Room {
         for (let i = 0; i <= roomConfig.gridDivisions * 2; i++) {
             const x = (i / (roomConfig.gridDivisions * 2)) * roomConfig.width - roomConfig.width/2;
             const geometry = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(x, -roomConfig.height/2, -roomConfig.depth/2),
-                new THREE.Vector3(x, roomConfig.height/2, -roomConfig.depth/2)
+                new THREE.Vector3(x + this.position.x, -roomConfig.height/2 + this.position.y, -roomConfig.depth/2 + this.position.z),
+                new THREE.Vector3(x + this.position.x, roomConfig.height/2 + this.position.y, -roomConfig.depth/2 + this.position.z)
             ]);
             lines.add(new THREE.Line(geometry, material));
         }
@@ -50,8 +54,8 @@ export class Room {
         for (let i = 0; i <= roomConfig.gridDivisions * 2; i++) {
             const y = (i / (roomConfig.gridDivisions * 2)) * roomConfig.height - roomConfig.height/2;
             const geometry = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(-roomConfig.width/2, y, -roomConfig.depth/2),
-                new THREE.Vector3(roomConfig.width/2, y, -roomConfig.depth/2)
+                new THREE.Vector3(-roomConfig.width/2 + this.position.x, y + this.position.y, -roomConfig.depth/2 + this.position.z),
+                new THREE.Vector3(roomConfig.width/2 + this.position.x, y + this.position.y, -roomConfig.depth/2 + this.position.z)
             ]);
             lines.add(new THREE.Line(geometry, material));
         }
@@ -61,15 +65,15 @@ export class Room {
             const z = (i / (roomConfig.gridDivisions * 2)) * roomConfig.depth - roomConfig.depth/2;
             // Left wall
             const geometryLeft = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(-roomConfig.width/2, -roomConfig.height/2, z),
-                new THREE.Vector3(-roomConfig.width/2, roomConfig.height/2, z)
+                new THREE.Vector3(-roomConfig.width/2 + this.position.x, -roomConfig.height/2 + this.position.y, z + this.position.z),
+                new THREE.Vector3(-roomConfig.width/2 + this.position.x, roomConfig.height/2 + this.position.y, z + this.position.z)
             ]);
             lines.add(new THREE.Line(geometryLeft, material));
             
             // Right wall
             const geometryRight = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(roomConfig.width/2, -roomConfig.height/2, z),
-                new THREE.Vector3(roomConfig.width/2, roomConfig.height/2, z)
+                new THREE.Vector3(roomConfig.width/2 + this.position.x, -roomConfig.height/2 + this.position.y, z + this.position.z),
+                new THREE.Vector3(roomConfig.width/2 + this.position.x, roomConfig.height/2 + this.position.y, z + this.position.z)
             ]);
             lines.add(new THREE.Line(geometryRight, material));
         }
@@ -78,15 +82,15 @@ export class Room {
             const y = (i / (roomConfig.gridDivisions * 2)) * roomConfig.height - roomConfig.height/2;
             // Left wall
             const geometryLeft = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(-roomConfig.width/2, y, -roomConfig.depth/2),
-                new THREE.Vector3(-roomConfig.width/2, y, roomConfig.depth/2)
+                new THREE.Vector3(-roomConfig.width/2 + this.position.x, y + this.position.y, -roomConfig.depth/2 + this.position.z),
+                new THREE.Vector3(-roomConfig.width/2 + this.position.x, y + this.position.y, roomConfig.depth/2 + this.position.z)
             ]);
             lines.add(new THREE.Line(geometryLeft, material));
             
             // Right wall
             const geometryRight = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(roomConfig.width/2, y, -roomConfig.depth/2),
-                new THREE.Vector3(roomConfig.width/2, y, roomConfig.depth/2)
+                new THREE.Vector3(roomConfig.width/2 + this.position.x, y + this.position.y, -roomConfig.depth/2 + this.position.z),
+                new THREE.Vector3(roomConfig.width/2 + this.position.x, y + this.position.y, roomConfig.depth/2 + this.position.z)
             ]);
             lines.add(new THREE.Line(geometryRight, material));
         }
@@ -95,8 +99,8 @@ export class Room {
         for (let i = 0; i <= roomConfig.gridDivisions * 2; i++) {
             const x = (i / (roomConfig.gridDivisions * 2)) * roomConfig.width - roomConfig.width/2;
             const geometry = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(x, -roomConfig.height/2, roomConfig.depth/2),
-                new THREE.Vector3(x, roomConfig.height/2, roomConfig.depth/2)
+                new THREE.Vector3(x + this.position.x, -roomConfig.height/2 + this.position.y, roomConfig.depth/2 + this.position.z),
+                new THREE.Vector3(x + this.position.x, roomConfig.height/2 + this.position.y, roomConfig.depth/2 + this.position.z)
             ]);
             lines.add(new THREE.Line(geometry, material));
         }
@@ -104,8 +108,8 @@ export class Room {
         for (let i = 0; i <= roomConfig.gridDivisions * 2; i++) {
             const y = (i / (roomConfig.gridDivisions * 2)) * roomConfig.height - roomConfig.height/2;
             const geometry = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(-roomConfig.width/2, y, roomConfig.depth/2),
-                new THREE.Vector3(roomConfig.width/2, y, roomConfig.depth/2)
+                new THREE.Vector3(-roomConfig.width/2 + this.position.x, y + this.position.y, roomConfig.depth/2 + this.position.z),
+                new THREE.Vector3(roomConfig.width/2 + this.position.x, y + this.position.y, roomConfig.depth/2 + this.position.z)
             ]);
             lines.add(new THREE.Line(geometry, material));
         }
@@ -130,7 +134,11 @@ export class Room {
             material
         );
         floor.rotation.x = -Math.PI / 2;
-        floor.position.y = -roomConfig.height/2;
+        floor.position.set(
+            this.position.x,
+            this.position.y - roomConfig.height/2,
+            this.position.z
+        );
         this.scene.add(floor);
     }
 }
